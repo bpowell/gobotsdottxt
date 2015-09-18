@@ -70,3 +70,26 @@ func NewRobots(url string) (Robots, error) {
 
 	return robots, nil
 }
+
+func (r Robots) CanVisitFullUrl(useragent, url string) bool {
+	if !strings.HasPrefix(url, r.URL) {
+		return false
+	}
+
+	url = strings.Trim(url, r.URL)
+	for _, group := range r.Groups {
+		if group.UserAgent == "*" || useragent == group.UserAgent {
+			for _, u := range group.Disallow {
+				if u == "/" {
+					return false
+				}
+
+				if strings.HasPrefix(url, u) {
+					return false
+				}
+			}
+		}
+	}
+
+	return true
+}
